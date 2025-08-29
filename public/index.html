@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Stripe Payment</title>
+</head>
+
+<body>
+  <main class="page">
+    <section class="card_box" role="form" aria-labelledby="title">
+      <h1 id="title">Stripe Payment Element</h1>
+
+      <label for="cardholder-name">Cardholder name</label>
+      <input id="cardholder-name" class="card_input" type="text">
+
+      <label for="cardholder-email">Cardholder email</label>
+      <input id="cardholder-email" class="card_input" type="email">
+
+      <label for="card-number-element" class="field_label">Card Number</label>
+      <div id="card-number-element" class="card_input" aria-live="polite"></div>
+
+      <div class="card_row">
+        <div>
+          <label for="card-number-element" class="field_label">Expiry date</label>
+          <div id="card-expiry-element" class="card_input"></div>
+        </div>
+
+        <div>
+          <label for="card-number-element" class="field_label">CVC</label>
+          <div id="card-cvc-element" class="card_input"></div>
+        </div>
+        
+        <div>
+          <label for="card-number-element" class="field_label">Zip code</label>
+          <input id="cardholder-zip" class="card_input" type="text">
+        </div>
+      </div>
+
+
+      <button id="card-button" class="btn_primary" aria-label="Pay now">Pay</button>
+      <div id="card-result" class="result" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

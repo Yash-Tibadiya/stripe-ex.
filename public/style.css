@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+/* Minimal, neutral theme */
+:root {
+  --bg: #121212;
+  --text: #ffffff; /* gray-900 */
+  --muted: #6b7280; /* gray-500 */
+  --border: #e5e7eb; /* gray-200 */
+  --focus: #2563eb; /* blue-600 for focus only */
+  --btn-bg: blue;
+  --btn-text: #ffffff;
+  --radius: 8px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto,
+    "Helvetica Neue", Arial;
+  background: radial-gradient(
+      1200px 800px at 80% -10%,
+      rgba(99, 91, 255, 0.35),
+      transparent 45%
+    ),
+    radial-gradient(
+      900px 700px at -10% 100%,
+      rgba(0, 224, 255, 0.15),
+      transparent 50%
+    ),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Page layout */
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/* Container */
+.card_box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* Row for Expiry, CVC, Zip */
+.card_row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+/* Ensure each field in the row grows evenly */
+.card_row > div {
+  flex: 1 1 0;
+  min-width: 0; /* allow children to shrink without overflow */
+}
+
+/* Make embedded inputs/elements fill width inside each cell */
+.card_row .card_input {
+  width: 100%;
+  margin-top: 4px;
+  margin-bottom: 0; /* avoid double spacing; row has its own margin */
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 480px) {
+  .card_row {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+/* Title */
+.card_box h1 {
+  margin: 0 0 6px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Field label */
+.field_label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Stripe Element container (neutral) */
+.card_input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  background: #ffffff;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.card_input:focus-within {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Button - minimal solid */
+.btn_primary,
+#card-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 1px solid #111827;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+.btn_primary:hover,
+#card-button:hover {
+  opacity: 0.9;
+}
+
+.btn_primary:active,
+#card-button:active {
+  opacity: 0.85;
+}
+
+.btn_primary:disabled,
+#card-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Result/status text */
+.result,
+#card-result {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* Secure note (subtle) */
+.secure_note {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
+  }
+  .card_box h1 {
+    font-size: 20px;
+  }
+}
+
+#cardholder-zip {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  color: #121212;
+}
+
+#cardholder-email {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  color: #121212;
+}
+
+#cardholder-name {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  color: #121212;
+}
