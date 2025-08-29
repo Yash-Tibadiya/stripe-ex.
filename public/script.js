@@ -64,12 +64,10 @@ const cardholderZipElement = document.getElementById("cardholder-zip");
 const cardButton = document.getElementById("card-button");
 const cardResult = document.getElementById("card-result");
 
-// Error containers
 const errorName = document.getElementById("error-name");
 const errorEmail = document.getElementById("error-email");
 const errorZip = document.getElementById("error-zip");
 
-// Simple validators
 const isNonEmpty = (v) => String(v || "").trim().length > 0;
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
 const isZip = (v) => /^[0-9]{4,10}$/.test(String(v || "").trim());
@@ -83,8 +81,22 @@ const clearAllErrors = () => {
   cardResult.textContent = "";
 };
 
+// Helper to enable/disable button based on any visible error or empty required fields
+const updateButtonState = () => {
+  const hasInlineError =
+    (errorName && errorName.textContent) ||
+    (errorEmail && errorEmail.textContent) ||
+    (errorZip && errorZip.textContent);
+  const missingRequired =
+    !isNonEmpty(cardholderNameElement.value) ||
+    !isNonEmpty(cardholderEmailElement.value) ||
+    !isNonEmpty(cardholderZipElement.value);
+  cardButton.disabled = Boolean(hasInlineError || missingRequired);
+};
+
 cardholderNameElement.addEventListener("input", () => {
   show(errorName, isNonEmpty(cardholderNameElement.value) ? "" : "Name is required");
+  updateButtonState();
 });
 cardholderEmailElement.addEventListener("input", () => {
   const v = cardholderEmailElement.value;
@@ -92,16 +104,19 @@ cardholderEmailElement.addEventListener("input", () => {
     errorEmail,
     !isNonEmpty(v) ? "Email is required" : isEmail(v) ? "" : "Enter a valid email"
   );
+  updateButtonState();
 });
 cardholderZipElement.addEventListener("input", () => {
   const v = cardholderZipElement.value;
   show(errorZip, !isNonEmpty(v) ? "Zip is required" : isZip(v) ? "" : "Zip must be 4-10 digits");
+  updateButtonState();
 });
+
+updateButtonState();
 
 cardButton.addEventListener("click", async () => {
   clearAllErrors();
 
-  // Client-side required validation
   let hasError = false;
 
   if (!isNonEmpty(cardholderNameElement.value)) {
@@ -124,6 +139,7 @@ cardButton.addEventListener("click", async () => {
   }
 
   if (hasError) {
+    updateButtonState();
     return;
   }
 
@@ -140,9 +156,10 @@ cardButton.addEventListener("click", async () => {
     },
   });
 
+  // If Stripe returns an error then button disabled.
   if (error) {
     cardResult.textContent = error.message;
-    cardButton.disabled = false;
+    // Re-enable only when inputs elements change
     return;
   }
 
@@ -165,18 +182,16 @@ cardButton.addEventListener("click", async () => {
     );
     if (confirmError) {
       cardResult.textContent = confirmError.message || "Authentication failed";
-      cardButton.disabled = false;
       return;
     } else if (paymentIntent && paymentIntent.status === "succeeded") {
       cardResult.textContent = "Payment successful";
     } else {
       cardResult.textContent = "Payment processing completed with unexpected status";
     }
-  } else {
+  } else if (data && data.message) {
     cardResult.textContent = data.message;
   }
 
-  // Clear inputs after finishing flow
   cardNumberElement.clear();
   cardExpiryElement.clear();
   cardCvcElement.clear();
@@ -184,12 +199,36 @@ cardButton.addEventListener("click", async () => {
   cardholderEmailElement.value = "";
   cardholderZipElement.value = "";
 
-  // Re-enable button
-  cardButton.disabled = false;
+  // Recompute enablement based on current (now empty) inputs
+  updateButtonState();
 });
 
 cardNumberElement.on("change", (event) => {
   document.getElementById(
     "card-number-element"
   ).style.backgroundImage = `url(images/${event.brand}.png)`;
+  if (event.error && event.error.message) {
+    cardResult.textContent = event.error.message;
+    cardButton.disabled = true;
+  } else {
+    updateButtonState();
+  }
+});
+
+cardExpiryElement.on("change", (event) => {
+  if (event.error && event.error.message) {
+    cardResult.textContent = event.error.message;
+    cardButton.disabled = true;
+  } else {
+    updateButtonState();
+  }
+});
+
+cardCvcElement.on("change", (event) => {
+  if (event.error && event.error.message) {
+    cardResult.textContent = event.error.message;
+    cardButton.disabled = true;
+  } else {
+    updateButtonState();
+  }
 });
