@@ -24,7 +24,7 @@ app.post("/payment", async (req, res) => {
       return res.status(400).json({ message: "paymentMethodId is required" });
     }
 
-    // 1) Find or create a guest customer by email (if provided), otherwise create an anonymous guest customer
+    // 1) Find or create customer by email.
     let customer = null;
     if (email) {
       // Try to find an existing customer by email
@@ -45,11 +45,12 @@ app.post("/payment", async (req, res) => {
       });
     }
 
-    // 2) Attach the PaymentMethod to the customer (idempotent if already attached)
+    // 2) Attach the PaymentMethod to the customer
     try {
-      await stripe.paymentMethods.attach(paymentMethodId, { customer: customer.id });
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: customer.id,
+      });
     } catch (attachErr) {
-      // If it's already attached to this customer, ignore; otherwise, propagate
       const alreadyAttached =
         attachErr && attachErr.code === "resource_already_exists";
       if (!alreadyAttached) {
@@ -57,32 +58,33 @@ app.post("/payment", async (req, res) => {
       }
     }
 
-    // 3) Set as default payment method on the customer for future use (optional)
+    // 3) Set as default payment method on the customer for future use.
     await stripe.customers.update(customer.id, {
       invoice_settings: { default_payment_method: paymentMethodId },
     });
 
-    // 4) Create and confirm PaymentIntent for this customer
+    // 4) Create PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: 20 * 100,
       currency: "usd",
       customer: customer.id,
       payment_method: paymentMethodId,
       confirm: true,
-      // Accept only non-redirect methods (e.g., cards) and avoid requiring return_url
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: "never",
-      },
-      description: "Test payment",
+      off_session: true,
       receipt_email: email || undefined,
       metadata: {
-        customer_origin: "guest_checkout",
+        amount: 20 * 100,
+        currency: "usd",
+        customerId: customer.id,
+        paymentIntentId: paymentIntent.id,
+        paymentMethodId: paymentMethodId,
       },
     });
 
-    // If the PaymentIntent requires next_action (e.g., 3DS), return client_secret so client can handle
-    if (paymentIntent.status === "requires_action" || paymentIntent.status === "requires_source_action") {
+    if (
+      paymentIntent.status === "requires_action" ||
+      paymentIntent.status === "requires_source_action"
+    ) {
       return res.status(200).json({
         message: "Additional authentication required",
         requiresAction: true,
@@ -100,7 +102,9 @@ app.post("/payment", async (req, res) => {
   } catch (err) {
     console.error("Payment error:", err);
     const msg =
-      err && err.raw && err.raw.message ? err.raw.message : err.message || "Payment failed";
+      err && err.raw && err.raw.message
+        ? err.raw.message
+        : err.message || "Payment failed";
     res.status(500).json({ message: msg });
   }
 });
