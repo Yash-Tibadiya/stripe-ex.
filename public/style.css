@@ -163,7 +163,16 @@ body {
 #card-result {
   margin-top: 12px;
   font-size: 14px;
-  color: var(--text);
+  color: red;
+}
+
+/* Inline field error */
+.field_error {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ef4444; /* red-500 */
 }
 
 /* Secure note (subtle) */
